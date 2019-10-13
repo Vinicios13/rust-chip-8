@@ -17,6 +17,13 @@ impl Memory {
     Memory { memory }
   }
 
+  pub fn get_instruction(&self, address: u16) -> u16 {
+    let beggin_instruction = u16::from(self.memory[usize::from(address)]);
+    let end_instruction = u16::from(self.memory[usize::from(address + 1)]);
+
+    ((beggin_instruction << 8) | end_instruction)
+  }
+
   fn load_instructions(memory: &mut [u8; 0xFFF], instructions: &[u8]) {
     for (index, instruction) in instructions.iter().enumerate() {
       memory[index + 0x200] = *instruction;

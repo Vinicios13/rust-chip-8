@@ -17,4 +17,6 @@ fn main() {
         println!("{}", err);
         process::exit(1);
     }
+
+    emulator.run();
 }
