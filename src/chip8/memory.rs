@@ -12,12 +12,15 @@ impl Memory {
     let mut memory = [0; 0xFFF];
 
     Memory::load_predefined_instructions(&mut memory);
+    Memory::load_instructions(&mut memory, &instructions);
 
+    Memory { memory }
+  }
+
+  fn load_instructions(memory: &mut [u8; 0xFFF], instructions: &[u8]) {
     for (index, instruction) in instructions.iter().enumerate() {
       memory[index + 0x200] = *instruction;
     }
-
-    Memory { memory }
   }
 
   fn load_predefined_instructions(memory: &mut [u8; 0xFFF]) {
