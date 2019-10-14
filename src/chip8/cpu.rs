@@ -7,6 +7,7 @@ pub struct Cpu {
   program_counter: u16,
   stack: Vec<u16>,
   vx_register: [u8; 16],
+  i_register: u16,
 }
 
 trait IntoInstructionValue {
@@ -20,6 +21,7 @@ impl Cpu {
       program_counter: FIRST_INSTRUCTION_ADDRESS,
       stack: vec![],
       vx_register: [0; 16],
+      i_register: 0,
     }
   }
 
@@ -37,6 +39,11 @@ impl Cpu {
         self.set_vx_value(usize::from(x), (k1, k2).into_instruction_value() as u8);
         self.next_instruction();
       }
+      // Annn
+      (10, n1, n2, n3) => {
+        self.set_i_value((n1, n2, n3).into_instruction_value());
+        self.next_instruction();
+      }
       _ => panic!("undefined instruction {:#x}", instruction.get_value()),
     }
 
@@ -49,6 +56,10 @@ impl Cpu {
 
   fn set_vx_value(&mut self, index: usize, value: u8) {
     self.vx_register[index] = value;
+  }
+
+  fn set_i_value(&mut self, value: u16) {
+    self.i_register = value;
   }
 
   fn next_instruction(&mut self) {
