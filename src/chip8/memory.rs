@@ -2,6 +2,10 @@ pub struct Memory {
   memory: [u8; 0xFFF], //4095 positions
 }
 
+pub struct Instruction {
+  value: u16,
+}
+
 impl Memory {
   pub fn new(instructions: Vec<u8>) -> Memory {
     // 0x000 to 0x1FF Reserved for interpreter
@@ -17,11 +21,11 @@ impl Memory {
     Memory { memory }
   }
 
-  pub fn get_instruction(&self, address: u16) -> u16 {
+  pub fn get_instruction(&self, address: u16) -> Instruction {
     let beggin_instruction = u16::from(self.memory[usize::from(address)]);
     let end_instruction = u16::from(self.memory[usize::from(address + 1)]);
 
-    ((beggin_instruction << 8) | end_instruction)
+    Instruction::new((beggin_instruction << 8) | end_instruction)
   }
 
   fn load_instructions(memory: &mut [u8; 0xFFF], instructions: &[u8]) {
@@ -57,5 +61,24 @@ impl Memory {
         i += 1;
       }
     }
+  }
+}
+
+impl Instruction {
+  pub fn new(value: u16) -> Instruction {
+    Instruction { value }
+  }
+
+  pub fn format_instruction(&self) -> (u16, u16, u16, u16) {
+    (
+      self.value >> 12,
+      (self.value << 4) >> 12,
+      (self.value << 8) >> 12,
+      (self.value << 12) >> 12,
+    )
+  }
+
+  pub fn get_value(&self) -> u16 {
+    self.value
   }
 }

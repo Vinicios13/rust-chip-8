@@ -34,7 +34,9 @@ impl Chip8 {
 
   pub fn run(&mut self) {
     if let Some(memory) = &mut self.memory {
-      self.cpu.run_instruction(memory);
+      loop {
+        self.cpu.run_instruction(memory);
+      }
     } else {
       panic!("memory was not set")
     }
