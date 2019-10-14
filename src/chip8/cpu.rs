@@ -44,6 +44,17 @@ impl Cpu {
         self.set_i_value((n1, n2, n3).into_instruction_value());
         self.next_instruction();
       }
+      // Dxyn
+      (13, x, y, n) => {
+        let vx = self.get_vx_value(usize::from(x));
+        let vy = self.get_vx_value(usize::from(y));
+
+        self.set_vx_value(16, 0);
+
+        // self.next_instruction();
+
+        // println!("");
+      }
       _ => panic!("undefined instruction {:#x}", instruction.get_value()),
     }
 
@@ -56,6 +67,10 @@ impl Cpu {
 
   fn set_vx_value(&mut self, index: usize, value: u8) {
     self.vx_register[index] = value;
+  }
+
+  fn get_vx_value(&mut self, index: usize) -> u8 {
+    self.vx_register[index]
   }
 
   fn set_i_value(&mut self, value: u16) {

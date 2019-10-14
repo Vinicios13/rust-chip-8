@@ -1,4 +1,5 @@
 mod cpu;
+mod display;
 mod memory;
 
 use std::error::Error;
@@ -6,11 +7,13 @@ use std::fs::File;
 use std::io::Read;
 
 use cpu::Cpu;
+use display::Display;
 use memory::Memory;
 
 pub struct Chip8 {
   memory: Option<Memory>,
   cpu: Cpu,
+  display: Display,
 }
 
 impl Chip8 {
@@ -18,6 +21,7 @@ impl Chip8 {
     Chip8 {
       memory: None,
       cpu: Cpu::new(),
+      display: Display::new(),
     }
   }
 
