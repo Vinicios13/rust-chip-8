@@ -40,20 +40,16 @@ impl Cpu {
         self.next_instruction();
       }
       // Annn
-      (10, n1, n2, n3) => {
+      (0xA, n1, n2, n3) => {
         self.set_i_value((n1, n2, n3).into_instruction_value());
         self.next_instruction();
       }
       // Dxyn
-      (13, x, y, n) => {
+      (0xD, x, y, n) => {
         let vx = self.get_vx_value(usize::from(x));
         let vy = self.get_vx_value(usize::from(y));
 
-        self.set_vx_value(16, 0);
-
-        // self.next_instruction();
-
-        // println!("");
+        self.set_vx_value(0xF, 0);
       }
       _ => panic!("undefined instruction {:#x}", instruction.get_value()),
     }
