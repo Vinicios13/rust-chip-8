@@ -1,3 +1,4 @@
+use super::Display;
 use super::Memory;
 
 static FIRST_INSTRUCTION_ADDRESS: u16 = 0x200;
@@ -25,7 +26,7 @@ impl Cpu {
     }
   }
 
-  pub fn run_instruction(&mut self, memory: &mut Memory) {
+  pub fn run_instruction(&mut self, memory: &mut Memory, display: &mut Display) {
     let instruction = memory.get_instruction(self.program_counter);
     let formated_instruction = instruction.format_instruction();
 
@@ -46,10 +47,16 @@ impl Cpu {
       }
       // Dxyn
       (0xD, x, y, n) => {
-        let vx = self.get_vx_value(usize::from(x));
-        let vy = self.get_vx_value(usize::from(y));
-
         self.set_vx_value(0xF, 0);
+
+        let vx = usize::from(self.get_vx_value(usize::from(x)));
+        let vy = usize::from(self.get_vx_value(usize::from(y)));
+        let height = usize::from(n);
+        let i = usize::from(self.get_i_value());
+
+        display.draw(vx, vy, height, i, &mut memory);
+
+        //self.next_instruction();
       }
       _ => panic!("undefined instruction {:#x}", instruction.get_value()),
     }
@@ -71,6 +78,10 @@ impl Cpu {
 
   fn set_i_value(&mut self, value: u16) {
     self.i_register = value;
+  }
+
+  fn get_i_value(&self) -> u16 {
+    self.i_register
   }
 
   fn next_instruction(&mut self) {
