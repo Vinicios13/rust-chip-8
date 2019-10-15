@@ -35,6 +35,17 @@ impl Cpu {
       (1, n1, n2, n3) => {
         self.set_program_counter((n1, n2, n3).into_instruction_value());
       }
+      // 3xkk
+      (3, x, k1, k2) => {
+        let index = usize::from(x);
+        let vx = self.vx_register[index];
+
+        if vx == (k1, k2).into_instruction_value() as u8 {
+          self.skip_next_instruction()
+        } else {
+          self.next_instruction()
+        }
+      }
       // 6xkk
       (6, x, k1, k2) => {
         self.vx_register[usize::from(x)] = (k1, k2).into_instruction_value() as u8;
@@ -72,7 +83,13 @@ impl Cpu {
       // Fx1E
       (0xF, x, 1, 0xE) => {
         let index = usize::from(x);
-        self.i_register += u16::from(self.vx_register[index]);
+
+        let (sum, overflow) = self
+          .i_register
+          .overflowing_add(u16::from(self.vx_register[index]));
+
+        self.i_register = sum;
+        self.vx_register[0xF] = u8::from(overflow);
 
         self.next_instruction();
       }
@@ -90,9 +107,9 @@ impl Cpu {
     self.program_counter += 2;
   }
 
-  // fn jump_next_instruction(&mut self) {
-  //   self.program_counter += 4;
-  // }
+  fn skip_next_instruction(&mut self) {
+    self.program_counter += 4;
+  }
 }
 
 impl IntoInstructionValue for (u16, u16, u16) {
