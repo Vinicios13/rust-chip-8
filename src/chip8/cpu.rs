@@ -40,7 +40,7 @@ impl Cpu {
         let index = usize::from(x);
         let vx = self.vx_register[index];
 
-        if vx == (k1, k2).into_instruction_value() as u8 {
+        if u16::from(vx) == (k1, k2).into_instruction_value() {
           self.skip_next_instruction()
         } else {
           self.next_instruction()
@@ -63,12 +63,11 @@ impl Cpu {
         let vx = usize::from(self.vx_register[usize::from(x)]);
         let vy = usize::from(self.vx_register[usize::from(y)]);
         let height = usize::from(n);
-        let i = usize::from(self.i_register);
+        let i = self.i_register;
 
         let has_collided = display.draw(vx, vy, height, i, memory);
 
         self.vx_register[0xF] = u8::from(has_collided);
-
         self.next_instruction();
       }
       // 7xkk
