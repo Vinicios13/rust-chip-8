@@ -54,9 +54,11 @@ impl Cpu {
         let height = usize::from(n);
         let i = usize::from(self.get_i_value());
 
-        display.draw(vx, vy, height, i, &mut memory);
+        let has_collided = display.draw(vx, vy, height, i, memory);
 
-        //self.next_instruction();
+        self.set_vx_value(0xF, u8::from(has_collided));
+
+        self.next_instruction();
       }
       _ => panic!("undefined instruction {:#x}", instruction.get_value()),
     }

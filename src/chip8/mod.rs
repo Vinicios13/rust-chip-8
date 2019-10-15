@@ -39,7 +39,13 @@ impl Chip8 {
   pub fn run(&mut self) {
     if let Some(memory) = &mut self.memory {
       loop {
-        self.cpu.run_instruction(memory);
+        self.display.set_should_render(false);
+
+        self.cpu.run_instruction(memory, &mut self.display);
+
+        if self.display.get_should_render() {
+          self.display.render();
+        }
       }
     } else {
       panic!("memory was not set")
