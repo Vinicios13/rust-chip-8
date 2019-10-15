@@ -42,7 +42,7 @@ impl Cpu {
       }
       // Annn
       (0xA, n1, n2, n3) => {
-        self.set_i_value((n1, n2, n3).into_instruction_value());
+        self.i_register = (n1, n2, n3).into_instruction_value();
         self.next_instruction();
       }
       // Dxyn
@@ -52,7 +52,7 @@ impl Cpu {
         let vx = usize::from(self.vx_register[usize::from(x)]);
         let vy = usize::from(self.vx_register[usize::from(y)]);
         let height = usize::from(n);
-        let i = usize::from(self.get_i_value());
+        let i = usize::from(self.i_register);
 
         let has_collided = display.draw(vx, vy, height, i, memory);
 
@@ -65,7 +65,14 @@ impl Cpu {
         let index = usize::from(x);
         let vx = self.vx_register[index];
 
-        self.vx_register[index] += ((vx as u16) + (k1, k2).into_instruction_value()) as u8;
+        self.vx_register[index] += ((u16::from(vx)) + (k1, k2).into_instruction_value()) as u8;
+
+        self.next_instruction();
+      }
+      // Fx1E
+      (0xF, x, 1, 0xE) => {
+        let index = usize::from(x);
+        self.i_register += u16::from(self.vx_register[index]);
 
         self.next_instruction();
       }
@@ -77,13 +84,6 @@ impl Cpu {
 
   fn set_program_counter(&mut self, next_instruction: u16) {
     self.program_counter = next_instruction
-  }
-  fn set_i_value(&mut self, value: u16) {
-    self.i_register = value;
-  }
-
-  fn get_i_value(&self) -> u16 {
-    self.i_register
   }
 
   fn next_instruction(&mut self) {
