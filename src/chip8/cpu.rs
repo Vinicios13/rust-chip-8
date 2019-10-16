@@ -35,6 +35,12 @@ impl Cpu {
       (1, n1, n2, n3) => {
         self.set_program_counter((n1, n2, n3).into_instruction_value());
       }
+      // 2nnn
+      (2, n1, n2, n3) => {
+        self.next_instruction();
+        self.stack.push(self.program_counter);
+        self.set_program_counter((n1, n2, n3).into_instruction_value())
+      }
       // 3xkk
       (3, x, k1, k2) => {
         let index = usize::from(x);
