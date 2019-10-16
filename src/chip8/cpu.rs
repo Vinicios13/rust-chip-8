@@ -62,6 +62,19 @@ impl Cpu {
         self.i_register = (n1, n2, n3).into_instruction_value();
         self.next_instruction();
       }
+      // 7xkk
+      (7, x, k1, k2) => {
+        let index = usize::from(x);
+
+        self.vx_register[index] += (k1, k2).into_instruction_value() as u8;
+
+        self.next_instruction();
+      }
+      //8xy0
+      (8, x, y, 0) => {
+        self.vx_register[usize::from(x)] = self.vx_register[usize::from(y)];
+        self.next_instruction();
+      }
       // Dxyn
       (0xD, x, y, n) => {
         self.vx_register[0xF] = 0;
@@ -74,19 +87,6 @@ impl Cpu {
         let has_collided = display.draw(vx, vy, height, i, memory);
 
         self.vx_register[0xF] = u8::from(has_collided);
-        self.next_instruction();
-      }
-      // 7xkk
-      (7, x, k1, k2) => {
-        let index = usize::from(x);
-
-        self.vx_register[index] += (k1, k2).into_instruction_value() as u8;
-
-        self.next_instruction();
-      }
-      //8xy0
-      (8, x, y, 0) => {
-        self.vx_register[usize::from(x)] = self.vx_register[usize::from(y)];
         self.next_instruction();
       }
       // Fx1E
