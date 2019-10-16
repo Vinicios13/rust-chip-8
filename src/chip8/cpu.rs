@@ -84,6 +84,11 @@ impl Cpu {
 
         self.next_instruction();
       }
+      //8xy0
+      (8, x, y, 0) => {
+        self.vx_register[usize::from(x)] = self.vx_register[usize::from(y)];
+        self.next_instruction();
+      }
       // Fx1E
       (0xF, x, 1, 0xE) => {
         let index = usize::from(x);
