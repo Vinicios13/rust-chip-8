@@ -73,9 +73,8 @@ impl Cpu {
       // 7xkk
       (7, x, k1, k2) => {
         let index = usize::from(x);
-        let vx = self.vx_register[index];
 
-        self.vx_register[index] += ((u16::from(vx)) + (k1, k2).into_instruction_value()) as u8;
+        self.vx_register[index] += (k1, k2).into_instruction_value() as u8;
 
         self.next_instruction();
       }
