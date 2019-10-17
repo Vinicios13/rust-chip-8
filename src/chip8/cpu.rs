@@ -89,6 +89,11 @@ impl Cpu {
         self.vx_register[0xF] = u8::from(has_collided);
         self.next_instruction();
       }
+      // ExA1
+      (0xE, x, 0xA, 1) => {
+        //println!("Todo");
+        println!("{:#X}", 12);
+      }
       // Fx1E
       (0xF, x, 1, 0xE) => {
         let index = usize::from(x);

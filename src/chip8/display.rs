@@ -1,10 +1,14 @@
+extern crate minifb;
 use super::Memory;
+
+use minifb::{Window, WindowOptions};
 
 const DISPLAY_WIDTH: usize = 64;
 const DISPLAY_HEIGHT: usize = 32;
 
 pub struct Display {
-  gfx: [u8; DISPLAY_WIDTH * DISPLAY_HEIGHT],
+  pub gfx: [u8; DISPLAY_WIDTH * DISPLAY_HEIGHT],
+  window: Window,
   should_render: bool,
 }
 
@@ -13,6 +17,15 @@ impl Display {
     Display {
       gfx: [0; DISPLAY_WIDTH * DISPLAY_HEIGHT],
       should_render: false,
+      window: Window::new(
+        "CHIP-8 EMULATOR - ESC to exit",
+        DISPLAY_WIDTH * 10,
+        DISPLAY_HEIGHT * 10,
+        WindowOptions::default(),
+      )
+      .unwrap_or_else(|e| {
+        panic!(e);
+      }),
     }
   }
 
@@ -46,7 +59,31 @@ impl Display {
     has_collided
   }
 
-  pub fn render(&self) {}
+  pub fn render(&mut self) {
+    let (width, height) = self.window.get_size();
+    let mut buffer: Vec<u32> = vec![0; width * height];
+
+    for y in 0..height {
+      let y_coord = y / 10;
+      let offset = y * width;
+      for x in 0..width {
+        let x_coord = x / 10;
+
+        let pixel = self.gfx[y_coord * DISPLAY_WIDTH + x_coord];
+
+        let color_pixel = match pixel {
+          0 => 0x0,
+          1 => 0xffffff,
+          _ => unreachable!(),
+        };
+        buffer[offset + x] = color_pixel;
+      }
+    }
+
+    if let Err(err) = self.window.update_with_buffer(&buffer) {
+      panic!(err);
+    }
+  }
 
   pub fn set_should_render(&mut self, should_render: bool) {
     self.should_render = should_render;
