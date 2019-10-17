@@ -10,6 +10,7 @@ pub struct Cpu {
   stack: Vec<u16>,
   vx_register: [u8; 16],
   i_register: u16,
+  delay_timer: u8,
 }
 
 trait IntoInstructionValue {
@@ -24,6 +25,7 @@ impl Cpu {
       stack: vec![],
       vx_register: [0; 16],
       i_register: 0,
+      delay_timer: 0,
     }
   }
 
@@ -37,6 +39,10 @@ impl Cpu {
     let formated_instruction = instruction.format_instruction();
 
     match formated_instruction {
+      // 00EE
+      (0, 0, 0xE, 0xE) => {
+        self.program_counter = self.stack.pop().unwrap();
+      }
       // 1nnn
       (1, n1, n2, n3) => {
         self.set_program_counter((n1, n2, n3).into_instruction_value());
@@ -103,6 +109,16 @@ impl Cpu {
           self.skip_next_instruction();
         }
       }
+      // Fx07
+      (0xF, x, 0, 7) => {
+        self.vx_register[usize::from(x)] = self.delay_timer;
+        self.next_instruction();
+      }
+      // Fx15
+      (0xF, x, 1, 5) => {
+        self.delay_timer = self.vx_register[usize::from(x)];
+        self.next_instruction();
+      }
       // Fx1E
       (0xF, x, 1, 0xE) => {
         let index = usize::from(x);
@@ -116,10 +132,19 @@ impl Cpu {
 
         self.next_instruction();
       }
-      _ => panic!("undefined instruction {:#x}", instruction.get_value()),
-    }
+      // Fx65
+      (0xF, x, 6, 5) => {
+        let i_register = usize::from(self.i_register);
+        for i in 0..=usize::from(x) {
+          self.vx_register[i] = memory.get_byte(i_register + i);
+        }
 
-    // self.set_previously_instruction();
+        self.i_register += x + 1;
+
+        self.next_instruction();
+      }
+      _ => panic!("undefined instruction {:#X}", instruction.get_value()),
+    }
   }
 
   fn set_program_counter(&mut self, next_instruction: u16) {
