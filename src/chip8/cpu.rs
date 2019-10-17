@@ -1,4 +1,5 @@
 use super::Display;
+use super::Keyboard;
 use super::Memory;
 
 static FIRST_INSTRUCTION_ADDRESS: u16 = 0x200;
@@ -26,7 +27,12 @@ impl Cpu {
     }
   }
 
-  pub fn run_instruction(&mut self, memory: &mut Memory, display: &mut Display) {
+  pub fn run_instruction(
+    &mut self,
+    memory: &mut Memory,
+    display: &mut Display,
+    keyboard: &Keyboard,
+  ) {
     let instruction = memory.get_instruction(self.program_counter);
     let formated_instruction = instruction.format_instruction();
 
@@ -91,8 +97,11 @@ impl Cpu {
       }
       // ExA1
       (0xE, x, 0xA, 1) => {
-        //println!("Todo");
-        println!("{:#X}", 12);
+        if keyboard.get_key_state(usize::from(x)) {
+          self.next_instruction();
+        } else {
+          self.skip_next_instruction();
+        }
       }
       // Fx1E
       (0xF, x, 1, 0xE) => {

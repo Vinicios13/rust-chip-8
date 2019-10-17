@@ -1,6 +1,6 @@
 extern crate minifb;
+use super::Keyboard;
 use super::Memory;
-
 use minifb::{Window, WindowOptions};
 
 const DISPLAY_WIDTH: usize = 64;
@@ -91,5 +91,20 @@ impl Display {
 
   pub fn get_should_render(&mut self) -> bool {
     self.should_render
+  }
+
+  pub fn set_keys_state(&mut self, keyboard: &mut Keyboard) {
+    let mut keys_state = Vec::with_capacity(16);
+
+    self.window.update();
+    for i in 0..16 {
+      let key = keyboard.get_key(i);
+
+      let key_state = self.window.is_key_down(key);
+
+      keys_state.push(key_state);
+    }
+
+    keyboard.set_keys_state(keys_state);
   }
 }

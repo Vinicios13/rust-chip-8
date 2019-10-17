@@ -1,5 +1,6 @@
 mod cpu;
 mod display;
+mod keyboard;
 mod memory;
 
 use std::error::Error;
@@ -8,12 +9,14 @@ use std::io::Read;
 
 use cpu::Cpu;
 use display::Display;
+use keyboard::Keyboard;
 use memory::Memory;
 
 pub struct Chip8 {
   memory: Option<Memory>,
   cpu: Cpu,
   display: Display,
+  keyboard: Keyboard,
 }
 
 impl Chip8 {
@@ -22,6 +25,7 @@ impl Chip8 {
       memory: None,
       cpu: Cpu::new(),
       display: Display::new(),
+      keyboard: Keyboard::new(),
     }
   }
 
@@ -41,11 +45,15 @@ impl Chip8 {
       loop {
         self.display.set_should_render(false);
 
-        self.cpu.run_instruction(memory, &mut self.display);
+        self
+          .cpu
+          .run_instruction(memory, &mut self.display, &self.keyboard);
 
         if self.display.get_should_render() {
           self.display.render();
         }
+
+        self.display.set_keys_state(&mut self.keyboard);
       }
     } else {
       panic!("memory was not set")
