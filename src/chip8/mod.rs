@@ -1,3 +1,5 @@
+extern crate fps_clock;
+
 mod cpu;
 mod display;
 mod keyboard;
@@ -42,6 +44,8 @@ impl Chip8 {
 
   pub fn run(&mut self) {
     if let Some(memory) = &mut self.memory {
+      let mut fps = fps_clock::FpsClock::new(60);
+
       loop {
         self.display.set_should_render(false);
 
@@ -54,6 +58,8 @@ impl Chip8 {
         }
 
         self.display.set_keys_state(&mut self.keyboard);
+
+        fps.tick();
       }
     } else {
       panic!("memory was not set")
