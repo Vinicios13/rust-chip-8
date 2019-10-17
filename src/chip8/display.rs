@@ -73,7 +73,7 @@ impl Display {
 
         let color_pixel = match pixel {
           0 => 0x0,
-          1 => 0xffffff,
+          1 => 0xfff_fff,
           _ => unreachable!(),
         };
         buffer[offset + x] = color_pixel;
@@ -83,6 +83,14 @@ impl Display {
     if let Err(err) = self.window.update_with_buffer(&buffer) {
       panic!(err);
     }
+  }
+
+  pub fn clear_gfx(&mut self) {
+    for i in self.gfx.iter_mut() {
+      *i = 0;
+    }
+
+    self.should_render = true;
   }
 
   pub fn set_should_render(&mut self, should_render: bool) {

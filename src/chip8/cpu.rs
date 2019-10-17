@@ -5,7 +5,6 @@ use super::Memory;
 static FIRST_INSTRUCTION_ADDRESS: u16 = 0x200;
 
 pub struct Cpu {
-  previously_instruction: u16,
   program_counter: u16,
   stack: Vec<u16>,
   vx_register: [u8; 16],
@@ -20,7 +19,6 @@ trait IntoInstructionValue {
 impl Cpu {
   pub fn new() -> Cpu {
     Cpu {
-      previously_instruction: 0,
       program_counter: FIRST_INSTRUCTION_ADDRESS,
       stack: vec![],
       vx_register: [0; 16],
@@ -39,6 +37,11 @@ impl Cpu {
     let formated_instruction = instruction.format_instruction();
 
     match formated_instruction {
+      // 00E0
+      (0, 0, 0xE, 0) => {
+        display.clear_gfx();
+        self.next_instruction();
+      }
       // 00EE
       (0, 0, 0xE, 0xE) => {
         self.program_counter = self.stack.pop().unwrap();
