@@ -49,8 +49,7 @@ impl Cpu {
       }
       // 2nnn
       (2, n1, n2, n3) => {
-        self.next_instruction();
-        self.stack.push(self.program_counter);
+        self.stack.push(self.program_counter + 2);
         self.set_program_counter((n1, n2, n3).into_instruction_value())
       }
       // 3xkk
@@ -69,11 +68,6 @@ impl Cpu {
         self.vx_register[usize::from(x)] = (k1, k2).into_instruction_value() as u8;
         self.next_instruction();
       }
-      // Annn
-      (0xA, n1, n2, n3) => {
-        self.i_register = (n1, n2, n3).into_instruction_value();
-        self.next_instruction();
-      }
       // 7xkk
       (7, x, k1, k2) => {
         let index = usize::from(x);
@@ -87,6 +81,11 @@ impl Cpu {
         self.vx_register[usize::from(x)] = self.vx_register[usize::from(y)];
         self.next_instruction();
       }
+      // Annn
+      (0xA, n1, n2, n3) => {
+        self.i_register = (n1, n2, n3).into_instruction_value();
+        self.next_instruction();
+      }
       // Dxyn
       (0xD, x, y, n) => {
         self.vx_register[0xF] = 0;
@@ -94,11 +93,10 @@ impl Cpu {
         let vx = usize::from(self.vx_register[usize::from(x)]);
         let vy = usize::from(self.vx_register[usize::from(y)]);
         let height = usize::from(n);
-        let i = self.i_register;
 
-        let has_collided = display.draw(vx, vy, height, i, memory);
+        let has_collided = display.draw(vx, vy, height, self.i_register, memory);
 
-        self.vx_register[0xF] = u8::from(has_collided);
+        self.vx_register[0xF] = if has_collided { 1 } else { 0 };
         self.next_instruction();
       }
       // ExA1
@@ -144,6 +142,10 @@ impl Cpu {
         self.next_instruction();
       }
       _ => panic!("undefined instruction {:#X}", instruction.get_value()),
+    }
+
+    if (self.delay_timer) > 0 {
+      self.delay_timer -= 1
     }
   }
 
