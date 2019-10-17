@@ -40,10 +40,10 @@ impl Display {
     let mut has_collided = false;
 
     for i in 0..height {
-      let pixel = memory.get_instruction(i_register + i as u16).get_value();
+      let byte = memory.get_byte(usize::from(i_register) + i);
 
       for j in 0..8 {
-        if (pixel & (0x80 >> j)) != 0 {
+        if (byte & (0x80 >> j)) != 0 {
           let index = ((x + j) + ((y + i) * DISPLAY_WIDTH)) % 2048;
 
           if self.gfx[index] == 1 {
