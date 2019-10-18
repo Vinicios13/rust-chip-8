@@ -102,7 +102,7 @@ impl Display {
   }
 
   pub fn set_keys_state(&mut self, keyboard: &mut Keyboard) {
-    let mut keys_state = Vec::with_capacity(16);
+    let mut keys_state = [false; 16];
 
     self.window.update();
     for i in 0..16 {
@@ -110,7 +110,7 @@ impl Display {
 
       let key_state = self.window.is_key_down(key);
 
-      keys_state.push(key_state);
+      keys_state[i] = key_state;
     }
 
     keyboard.set_keys_state(keys_state);

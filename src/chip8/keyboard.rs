@@ -4,14 +4,14 @@ use minifb::Key;
 
 pub struct Keyboard {
   keys: [Key; 16],
-  pub keys_state: Vec<bool>,
+  pub keys_state: [bool; 16],
 }
 
 impl Keyboard {
   pub fn new() -> Keyboard {
     Keyboard {
       keys: Keyboard::chip8_keys(),
-      keys_state: vec![],
+      keys_state: [false; 16],
     }
   }
 
@@ -19,7 +19,7 @@ impl Keyboard {
     self.keys[chip8_key]
   }
 
-  pub fn set_keys_state(&mut self, keys_state: Vec<bool>) {
+  pub fn set_keys_state(&mut self, keys_state: [bool; 16]) {
     self.keys_state = keys_state
   }
 
@@ -34,22 +34,22 @@ impl Keyboard {
     // 7 8 9 E to A S D F
     // A 0 B F to Z X C V
     [
-      Key::X,
-      Key::Key1,
-      Key::Key2,
-      Key::Key3,
-      Key::Q,
-      Key::W,
-      Key::E,
-      Key::A,
-      Key::S,
-      Key::D,
-      Key::Z,
-      Key::C,
-      Key::Key4,
-      Key::R,
-      Key::F,
-      Key::V,
+      Key::X,    // 0
+      Key::Key1, // 1
+      Key::Key2, // 2
+      Key::Key3, // 3
+      Key::Q,    // 4
+      Key::W,    // 5
+      Key::E,    // 6
+      Key::A,    // 7
+      Key::S,    // 8
+      Key::D,    // 9
+      Key::Z,    // 10
+      Key::C,    // 11
+      Key::Key4, // 12
+      Key::R,    // 13
+      Key::F,    // 14
+      Key::V,    // 15
     ]
   }
 }

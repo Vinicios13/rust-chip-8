@@ -44,9 +44,12 @@ impl Chip8 {
 
   pub fn run(&mut self) {
     if let Some(memory) = &mut self.memory {
-      let mut fps = fps_clock::FpsClock::new(60);
+      let mut fps = fps_clock::FpsClock::new(120);
 
       loop {
+        fps.tick();
+        self.display.set_keys_state(&mut self.keyboard);
+
         self.display.set_should_render(false);
 
         self
@@ -58,8 +61,6 @@ impl Chip8 {
         }
 
         self.display.set_keys_state(&mut self.keyboard);
-
-        fps.tick();
       }
     } else {
       panic!("memory was not set")

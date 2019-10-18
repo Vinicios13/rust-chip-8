@@ -1,3 +1,6 @@
+extern crate rand;
+use rand::prelude::*;
+
 use super::Display;
 use super::Keyboard;
 use super::Memory;
@@ -10,6 +13,7 @@ pub struct Cpu {
   vx_register: [u8; 16],
   i_register: u16,
   delay_timer: u8,
+  sound_timer: u8,
 }
 
 trait IntoInstructionValue {
@@ -24,6 +28,7 @@ impl Cpu {
       vx_register: [0; 16],
       i_register: 0,
       delay_timer: 0,
+      sound_timer: 0,
     }
   }
 
@@ -61,6 +66,17 @@ impl Cpu {
         let vx = self.vx_register[index];
 
         if u16::from(vx) == (k1, k2).into_instruction_value() {
+          self.skip_next_instruction()
+        } else {
+          self.next_instruction()
+        }
+      }
+      // 4xkk
+      (4, x, k1, k2) => {
+        let index = usize::from(x);
+        let vx = self.vx_register[index];
+
+        if u16::from(vx) != (k1, k2).into_instruction_value() {
           self.skip_next_instruction()
         } else {
           self.next_instruction()
@@ -116,17 +132,33 @@ impl Cpu {
 
         self.next_instruction();
       }
+      // 8xy5
+      (8, x, y, 5) => {
+        let x_index = usize::from(x);
+
+        let (diff, overflow) =
+          self.vx_register[x_index].overflowing_sub(self.vx_register[usize::from(y)]);
+
+        self.vx_register[x_index] = diff;
+        self.vx_register[0xF] = u8::from(!overflow);
+        self.next_instruction();
+      }
       // 8xy6
-      (8, x, y, 6) => {
+      (8, x, _, 6) => {
         let x_index = usize::from(x);
 
         self.vx_register[0xF] = self.vx_register[usize::from(x)] & 0x1;
-        self.vx_register[x_index] = self.vx_register[x_index] >> 1;
+        self.vx_register[x_index] >>= 1;
         self.next_instruction();
       }
       // Annn
       (0xA, n1, n2, n3) => {
         self.i_register = (n1, n2, n3).into_instruction_value();
+        self.next_instruction();
+      }
+      // Cxkk
+      (0xC, x, k1, k2) => {
+        self.vx_register[usize::from(x)] = random::<u8>() & (k1, k2).into_instruction_value() as u8;
         self.next_instruction();
       }
       // Dxyn
@@ -145,15 +177,19 @@ impl Cpu {
 
       // Ex9E
       (0xE, x, 9, 0xE) => {
-        if !keyboard.get_key_state(usize::from(x)) {
-          self.next_instruction();
-        } else {
+        let vx = usize::from(self.vx_register[usize::from(x)]);
+
+        if keyboard.get_key_state(vx) {
           self.skip_next_instruction();
+        } else {
+          self.next_instruction();
         }
       }
       // ExA1
       (0xE, x, 0xA, 1) => {
-        if keyboard.get_key_state(usize::from(x)) {
+        let vx = usize::from(self.vx_register[usize::from(x)]);
+
+        if keyboard.get_key_state(vx) {
           self.next_instruction();
         } else {
           self.skip_next_instruction();
@@ -169,6 +205,11 @@ impl Cpu {
         self.delay_timer = self.vx_register[usize::from(x)];
         self.next_instruction();
       }
+      // Fx18
+      (0xF, x, 1, 8) => {
+        self.sound_timer = self.vx_register[usize::from(x)];
+        self.next_instruction();
+      }
       // Fx1E
       (0xF, x, 1, 0xE) => {
         let index = usize::from(x);
@@ -179,6 +220,24 @@ impl Cpu {
 
         self.i_register = sum;
         self.vx_register[0xF] = u8::from(overflow);
+
+        self.next_instruction();
+      }
+      // Fx29
+      (0xF, x, 2, 9) => {
+        self.i_register = u16::from(self.vx_register[usize::from(x)]) * 5;
+
+        self.next_instruction();
+      }
+
+      // Fx33
+      (0xF, x, 3, 3) => {
+        let vx = self.vx_register[usize::from(x)];
+        let i_index = usize::from(self.i_register);
+
+        memory.set_byte(i_index, vx / 100);
+        memory.set_byte(i_index + 1, (vx % 100) / 10);
+        memory.set_byte(i_index + 2, vx % 10);
 
         self.next_instruction();
       }
@@ -198,6 +257,10 @@ impl Cpu {
 
     if (self.delay_timer) > 0 {
       self.delay_timer -= 1
+    }
+
+    if (self.sound_timer) > 0 {
+      self.sound_timer -= 1
     }
   }
 

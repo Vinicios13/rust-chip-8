@@ -25,6 +25,10 @@ impl Memory {
     self.memory[index]
   }
 
+  pub fn set_byte(&mut self, index: usize, value: u8) {
+    self.memory[index] = value;
+  }
+
   pub fn get_instruction(&self, address: u16) -> Instruction {
     let beggin_instruction = u16::from(self.memory[usize::from(address)]);
     let end_instruction = u16::from(self.memory[usize::from(address + 1)]);
