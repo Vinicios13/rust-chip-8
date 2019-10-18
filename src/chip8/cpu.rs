@@ -75,13 +75,53 @@ impl Cpu {
       (7, x, k1, k2) => {
         let index = usize::from(x);
 
-        self.vx_register[index] += (k1, k2).into_instruction_value() as u8;
+        self.vx_register[index] =
+          self.vx_register[index].wrapping_add((k1, k2).into_instruction_value() as u8);
 
         self.next_instruction();
       }
       //8xy0
       (8, x, y, 0) => {
         self.vx_register[usize::from(x)] = self.vx_register[usize::from(y)];
+        self.next_instruction();
+      }
+      //8xy1
+      (8, x, y, 1) => {
+        let x_index = usize::from(x);
+        self.vx_register[x_index] = self.vx_register[x_index] | self.vx_register[usize::from(y)];
+        self.next_instruction();
+      }
+      //8xy2
+      (8, x, y, 2) => {
+        let x_index = usize::from(x);
+        self.vx_register[x_index] = self.vx_register[x_index] & self.vx_register[usize::from(y)];
+        self.next_instruction();
+      }
+      //8xy3
+      (8, x, y, 3) => {
+        let x_index = usize::from(x);
+        self.vx_register[x_index] = self.vx_register[x_index] ^ self.vx_register[usize::from(y)];
+        self.next_instruction();
+      }
+      //8xy4
+      // Do test later
+      (8, x, y, 4) => {
+        let x_index = usize::from(x);
+
+        let (sum, overflow) =
+          self.vx_register[x_index].overflowing_add(self.vx_register[usize::from(y)]);
+
+        self.vx_register[x_index] = sum;
+        self.vx_register[0xF] = u8::from(overflow);
+
+        self.next_instruction();
+      }
+      // 8xy6
+      (8, x, y, 6) => {
+        let x_index = usize::from(x);
+
+        self.vx_register[0xF] = self.vx_register[usize::from(x)] & 0x1;
+        self.vx_register[x_index] = self.vx_register[x_index] >> 1;
         self.next_instruction();
       }
       // Annn
@@ -101,6 +141,15 @@ impl Cpu {
 
         self.vx_register[0xF] = if has_collided { 1 } else { 0 };
         self.next_instruction();
+      }
+
+      // Ex9E
+      (0xE, x, 9, 0xE) => {
+        if !keyboard.get_key_state(usize::from(x)) {
+          self.next_instruction();
+        } else {
+          self.skip_next_instruction();
+        }
       }
       // ExA1
       (0xE, x, 0xA, 1) => {
