@@ -82,6 +82,17 @@ impl Cpu {
           self.next_instruction()
         }
       }
+      // 5xkk
+      (5, x, k1, k2) => {
+        let index = usize::from(x);
+        let vx = self.vx_register[index];
+
+        if u16::from(vx) == (k1, k2).into_instruction_value() {
+          self.skip_next_instruction()
+        } else {
+          self.next_instruction()
+        }
+      }
       // 6xkk
       (6, x, k1, k2) => {
         self.vx_register[usize::from(x)] = (k1, k2).into_instruction_value() as u8;
@@ -120,7 +131,6 @@ impl Cpu {
         self.next_instruction();
       }
       //8xy4
-      // Do test later
       (8, x, y, 4) => {
         let x_index = usize::from(x);
 
@@ -151,10 +161,44 @@ impl Cpu {
         self.vx_register[x_index] >>= 1;
         self.next_instruction();
       }
+      // 8xy7
+      (8, x, y, 7) => {
+        let x_index = usize::from(x);
+
+        let (diff, overflow) =
+          self.vx_register[usize::from(y)].overflowing_sub(self.vx_register[x_index]);
+
+        self.vx_register[x_index] = diff;
+        self.vx_register[0xF] = u8::from(!overflow);
+        self.next_instruction();
+      }
+      // 8xyE
+      (8, x, _, 0xE) => {
+        let x_index = usize::from(x);
+
+        self.vx_register[0xF] = self.vx_register[usize::from(x)] & 0x1;
+        self.vx_register[x_index] <<= 1;
+
+        self.next_instruction();
+      }
+      // 9xy0
+      (9, x, y, 0) => {
+        if self.vx_register[usize::from(x)] != self.vx_register[usize::from(y)] {
+          self.skip_next_instruction();
+        } else {
+          self.next_instruction();
+        }
+      }
       // Annn
       (0xA, n1, n2, n3) => {
         self.i_register = (n1, n2, n3).into_instruction_value();
         self.next_instruction();
+      }
+      // Bnnn
+      (0xB, n1, n2, n3) => {
+        self.i_register = (n1, n2, n3)
+          .into_instruction_value()
+          .wrapping_add(u16::from(self.vx_register[0]));
       }
       // Cxkk
       (0xC, x, k1, k2) => {
@@ -174,7 +218,6 @@ impl Cpu {
         self.vx_register[0xF] = if has_collided { 1 } else { 0 };
         self.next_instruction();
       }
-
       // Ex9E
       (0xE, x, 9, 0xE) => {
         let vx = usize::from(self.vx_register[usize::from(x)]);
