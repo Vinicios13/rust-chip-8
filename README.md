@@ -1,6 +1,6 @@
 # Chip-8 emulator in Rust
 
-![Screenshot](assets/Screenshot.png) "Screenshot of the emulator running Space Invaders"
+![Screenshot](assets/Screenshot.png "Screenshot of the emulator running Space Invaders")
 
 This was one of the coolest projects that I ever coded, so if you are thinking in coding your own emulator, go ahead, it is really Fun!
 
