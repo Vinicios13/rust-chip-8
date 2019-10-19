@@ -82,12 +82,12 @@ impl Cpu {
           self.next_instruction()
         }
       }
-      // 5xkk
-      (5, x, k1, k2) => {
-        let index = usize::from(x);
-        let vx = self.vx_register[index];
+      // 5xy0
+      (5, x, y, 0) => {
+        let vx = self.vx_register[usize::from(x)];
+        let vy = self.vx_register[usize::from(y)];
 
-        if u16::from(vx) == (k1, k2).into_instruction_value() {
+        if vx == vy {
           self.skip_next_instruction()
         } else {
           self.next_instruction()
@@ -243,6 +243,12 @@ impl Cpu {
         self.vx_register[usize::from(x)] = self.delay_timer;
         self.next_instruction();
       }
+      // Fx0A
+      (0xF, x, 0, 0xA) => {
+        self.vx_register[usize::from(x)] = display.await_for_key(&keyboard);
+        self.next_instruction();
+      }
+
       // Fx15
       (0xF, x, 1, 5) => {
         self.delay_timer = self.vx_register[usize::from(x)];
@@ -282,6 +288,18 @@ impl Cpu {
         memory.set_byte(i_index + 1, (vx % 100) / 10);
         memory.set_byte(i_index + 2, vx % 10);
 
+        self.next_instruction();
+      }
+      // Fx55
+      (0xF, x, 5, 5) => {
+        let i_register = usize::from(self.i_register);
+        for i in 0..=usize::from(x) {
+          let vx = self.vx_register[i];
+
+          memory.set_byte(i_register + i, vx);
+        }
+
+        self.i_register += x + 1;
         self.next_instruction();
       }
       // Fx65

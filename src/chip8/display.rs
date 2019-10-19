@@ -115,4 +115,23 @@ impl Display {
 
     keyboard.set_keys_state(keys_state);
   }
+
+  pub fn await_for_key(&mut self, keyboard: &Keyboard) -> u8 {
+    let mut pressed_key = 17;
+
+    while pressed_key == 17 {
+      self.window.update();
+
+      for i in 0..16 {
+        let key = keyboard.get_key(i);
+
+        if self.window.is_key_down(key) {
+          pressed_key = i as u8;
+          break;
+        }
+      }
+    }
+
+    pressed_key
+  }
 }
