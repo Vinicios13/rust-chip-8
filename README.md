@@ -9,6 +9,16 @@ This was one of the coolest projects that I ever coded, so if you are thinking i
 ```
 cargo run ./games/path_to_file
 ```
+### Keys
+
+ |1| |2| |3| |C| to |1| |2| |3| |4|
+
+ |4| |5| |6| |D| to |Q| |W| |E| |R|
+
+ |7| |8| |9| |E| to |A| |S| |D| |F|
+
+ |A| |0| |B| |F| to |Z| |X| |C| |V|
+
 
 ### Resources 
 
