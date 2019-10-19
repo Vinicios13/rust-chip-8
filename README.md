@@ -7,7 +7,7 @@ This was one of the coolest projects that I ever coded, so if you are thinking i
 ### Usage
 
 ```
-cargo run ./games/path_to_file
+cargo run ./games/path_to_file --release
 ```
 ### Keys
 
