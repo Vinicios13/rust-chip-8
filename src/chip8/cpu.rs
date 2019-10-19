@@ -114,20 +114,17 @@ impl Cpu {
       }
       //8xy1
       (8, x, y, 1) => {
-        let x_index = usize::from(x);
-        self.vx_register[x_index] = self.vx_register[x_index] | self.vx_register[usize::from(y)];
+        self.vx_register[usize::from(x)] |= self.vx_register[usize::from(y)];
         self.next_instruction();
       }
       //8xy2
       (8, x, y, 2) => {
-        let x_index = usize::from(x);
-        self.vx_register[x_index] = self.vx_register[x_index] & self.vx_register[usize::from(y)];
+        self.vx_register[usize::from(x)] &= self.vx_register[usize::from(y)];
         self.next_instruction();
       }
       //8xy3
       (8, x, y, 3) => {
-        let x_index = usize::from(x);
-        self.vx_register[x_index] = self.vx_register[x_index] ^ self.vx_register[usize::from(y)];
+        self.vx_register[usize::from(x)] ^= self.vx_register[usize::from(y)];
         self.next_instruction();
       }
       //8xy4
