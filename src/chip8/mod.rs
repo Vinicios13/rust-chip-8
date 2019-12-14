@@ -1,4 +1,5 @@
-extern crate fps_clock;
+use std::thread;
+use std::time::Duration;
 
 mod cpu;
 mod display;
@@ -44,11 +45,9 @@ impl Chip8 {
 
   pub fn run(&mut self) {
     if let Some(memory) = &mut self.memory {
-      let mut fps = fps_clock::FpsClock::new(500);
+      let sleep_duration = Duration::from_millis(2);
 
       loop {
-        fps.tick();
-
         self.display.set_keys_state(&mut self.keyboard);
 
         self.display.set_should_render(false);
@@ -60,6 +59,7 @@ impl Chip8 {
         if self.display.get_should_render() {
           self.display.render();
         }
+        thread::sleep(sleep_duration);
       }
     } else {
       panic!("memory was not set")

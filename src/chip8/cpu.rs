@@ -1,9 +1,10 @@
 extern crate rand;
-use rand::prelude::*;
+extern crate time;
 
 use super::Display;
 use super::Keyboard;
 use super::Memory;
+use rand::prelude::*;
 
 static FIRST_INSTRUCTION_ADDRESS: u16 = 0x200;
 
@@ -14,6 +15,7 @@ pub struct Cpu {
   i_register: u16,
   delay_timer: u8,
   sound_timer: u8,
+  clock: u64,
 }
 
 trait IntoInstructionValue {
@@ -29,6 +31,7 @@ impl Cpu {
       i_register: 0,
       delay_timer: 0,
       sound_timer: 0,
+      clock: time::precise_time_ns(),
     }
   }
 
@@ -313,12 +316,17 @@ impl Cpu {
       _ => panic!("undefined instruction {:#X}", instruction.get_value()),
     }
 
-    if (self.delay_timer) > 0 {
-      self.delay_timer -= 1
-    }
+    let now = time::precise_time_ns();
 
-    if (self.sound_timer) > 0 {
-      self.sound_timer -= 1
+    if now - self.clock > 16666000 {
+      self.clock = now;
+      if (self.delay_timer) > 0 {
+        self.delay_timer -= 1
+      }
+
+      if (self.sound_timer) > 0 {
+        self.sound_timer -= 1
+      }
     }
   }
 
