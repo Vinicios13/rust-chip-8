@@ -27,4 +27,4 @@ cargo run ./games/path_to_file --release
 <a href="http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter">How to write an emulator (CHIP-8 interpreter) <a/>
   
  ### References
-   I used the minifb and fps_clock crates, to build the screen and to control the speed of the emulation respectively. Also I used <a href="https://github.com/JamesGriffin/CHIP-8-Emulator">JamesGriffin</a> emulator as reference
+   I used the minifb and time crates, to build the screen and to control the speed of the emulation respectively. Also I used <a href="https://github.com/JamesGriffin/CHIP-8-Emulator">JamesGriffin</a> emulator as reference
