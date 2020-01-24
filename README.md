@@ -11,13 +11,13 @@ cargo run ./games/path_to_file --release
 ```
 ### Keys
 
- |1| |2| |3| |C| to |1| |2| |3| |4|
+ |1| |2| |3| |4|
 
- |4| |5| |6| |D| to |Q| |W| |E| |R|
+ |Q| |W| |E| |R|
 
- |7| |8| |9| |E| to |A| |S| |D| |F|
+ |A| |S| |D| |F|
 
- |A| |0| |B| |F| to |Z| |X| |C| |V|
+ |Z| |X| |C| |V|
 
 
 ### Resources 
